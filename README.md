@@ -1,2 +1,102 @@
-# Immich-User-Sign-Up
-Side project to allow new users to signup on an Immich instance 
+# Immich Sign-Up
+
+A self-service **registration webapp** for an existing [Immich](https://immich.app)
+instance, with **invite codes** and **manual admin approval**.
+
+- Public registration page asking for the same details as Immich (name, email,
+  password) — the disk **quota is fixed at 5 GB** (configurable).
+- **Invite code** field:
+  - valid code → the account is created in Immich **immediately**;
+  - missing or wrong code → the request is held as **pending** for an
+    administrator to review.
+- **Admin area** to create/revoke invite codes and approve/reject pending
+  requests. Access is restricted to **Immich administrators** (they log in with
+  their Immich credentials).
+- Runs as a **single Docker container** exposed on port **2284**.
+
+## How it works
+
+```
+Browser ──:2284──► Immich Sign-Up (Node + React)
+                     ├─ uses the Immich Admin API to create users
+                     ├─ verifies admins via the Immich login API (isAdmin)
+                     └─ stores invite codes + pending requests in SQLite
+```
+
+Pending requests are stored locally because Immich has no "pending user"
+concept — the account is only created in Immich once approved. The chosen
+password is encrypted at rest (AES-256-GCM) so it can be provisioned into
+Immich at approval time, then deleted from the database.
+
+## Prerequisites
+
+1. A running Immich instance (the provided `docker-compose.yml` stack).
+2. An **admin API key**: in Immich open *Account Settings → API Keys → New API
+   Key* while logged in as an administrator.
+
+## Configuration
+
+Copy `.env.example` and fill in the values (you can append them to the same
+`.env` your Immich stack already uses):
+
+| Variable | Description |
+| --- | --- |
+| `IMMICH_API_URL` | Immich server URL on the Docker network (default `http://immich-server:2283`). |
+| `IMMICH_SIGNUP_API_KEY` | Immich **admin** API key. |
+| `SIGNUP_SESSION_SECRET` | Random secret (`openssl rand -hex 32`). |
+| `DEFAULT_QUOTA_BYTES` | Per-user quota in bytes (default `5368709120` = 5 GiB). |
+| `IMMICH_PUBLIC_URL` | Optional public Immich URL shown after sign-up. |
+| `SIGNUP_COOKIE_SECURE` | `1` if served over HTTPS. |
+
+## Run with Docker
+
+```bash
+docker compose -f docker-compose.webapp.yml up -d --build
+```
+
+This attaches to the existing `immich` Docker network and exposes the webapp on
+<http://localhost:2284>.
+
+- Registration page: `http://localhost:2284/`
+- Admin area: `http://localhost:2284/admin`
+
+You can also merge the `immich-signup` service from `docker-compose.webapp.yml`
+into your main Immich `docker-compose.yml`.
+
+## Local development
+
+Backend:
+
+```bash
+cd server
+npm install
+IMMICH_API_URL=http://localhost:2283 IMMICH_API_KEY=... SESSION_SECRET=dev npm run dev
+```
+
+Frontend (proxies `/api` to the backend on port 2284):
+
+```bash
+cd web
+npm install
+npm run dev   # http://localhost:5173
+```
+
+## Project layout
+
+```
+server/   Express API, SQLite access, Immich client
+web/      React (Vite) frontend: registration + admin dashboard
+Dockerfile                 multi-stage build (web + server)
+docker-compose.webapp.yml  service to add to your Immich stack
+.env.example               configuration reference
+```
+
+## Security notes
+
+- The admin API key never leaves the backend.
+- Admin sessions are signed cookies (`httpOnly`); every admin request is
+  re-validated against Immich (`/api/users/me`, `isAdmin`) so revoked admins
+  lose access immediately.
+- Registration and login endpoints are rate-limited.
+- Pending passwords are encrypted at rest and erased once the account is
+  created or the request is rejected.

@@ -1,0 +1,44 @@
+# Immich Sign-Up webapp.
+#
+# Option A — merge these services into your existing Immich docker-compose.yml.
+# Option B — run as a standalone stack: this file already references the same
+# project name ("immich") and the same default network, so it can attach to
+# the Immich containers. Start it with:
+#
+#   docker compose -f docker-compose.webapp.yml up -d --build
+#
+# Make sure the variables in `.env` (see .env.example) are set first.
+
+name: immich
+
+services:
+  immich-signup:
+    container_name: immich_signup
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: immich-signup:latest
+    env_file:
+      - .env
+    environment:
+      # Immich server reachable on the shared Docker network.
+      IMMICH_API_URL: ${IMMICH_API_URL:-http://immich-server:2283}
+      IMMICH_API_KEY: ${IMMICH_SIGNUP_API_KEY}
+      DEFAULT_QUOTA_BYTES: ${DEFAULT_QUOTA_BYTES:-5368709120}
+      SESSION_SECRET: ${SIGNUP_SESSION_SECRET}
+      IMMICH_PUBLIC_URL: ${IMMICH_PUBLIC_URL:-}
+      COOKIE_SECURE: ${SIGNUP_COOKIE_SECURE:-0}
+      NODE_ENV: production
+    ports:
+      - '2284:2284'
+    volumes:
+      - signup-data:/app/server/data
+    # When MERGED into the main Immich compose file you can uncomment this to
+    # start the webapp after the server. Leave it commented for standalone use
+    # (the service shares the "immich" network and reaches immich-server by name).
+    # depends_on:
+    #   - immich-server
+    restart: always
+
+volumes:
+  signup-data:
