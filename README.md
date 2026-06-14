@@ -50,18 +50,27 @@ Copy `.env.example` and fill in the values (you can append them to the same
 
 ## Run with Docker
 
+**Option A — full stack from scratch** (Immich + the sign-up webapp together):
+
+```bash
+docker compose -f docker-compose.example.yml up -d --build
+```
+
+This is the official Immich compose with the `immich-signup` service added.
+
+**Option B — add to an existing Immich stack** (webapp only):
+
 ```bash
 docker compose -f docker-compose.webapp.yml up -d --build
 ```
 
-This attaches to the existing `immich` Docker network and exposes the webapp on
-<http://localhost:2284>.
+This attaches to the existing `immich` Docker network. You can also merge the
+`immich-signup` service into your own `docker-compose.yml`.
+
+Either way the webapp is exposed on <http://localhost:2284>:
 
 - Registration page: `http://localhost:2284/`
 - Admin area: `http://localhost:2284/admin`
-
-You can also merge the `immich-signup` service from `docker-compose.webapp.yml`
-into your main Immich `docker-compose.yml`.
 
 ## Local development
 
@@ -87,7 +96,8 @@ npm run dev   # http://localhost:5173
 server/   Express API, SQLite access, Immich client
 web/      React (Vite) frontend: registration + admin dashboard
 Dockerfile                 multi-stage build (web + server)
-docker-compose.webapp.yml  service to add to your Immich stack
+docker-compose.example.yml full Immich stack + the sign-up service
+docker-compose.webapp.yml  sign-up service only (add to an existing stack)
 .env.example               configuration reference
 ```
 
