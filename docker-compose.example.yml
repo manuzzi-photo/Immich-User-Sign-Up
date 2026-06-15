@@ -11,15 +11,17 @@
 # Then generate an admin API key inside Immich (Account Settings -> API Keys)
 # and put it in IMMICH_SIGNUP_API_KEY before the sign-up webapp can create users.
 #
-# Make sure to keep the Immich images aligned with the current release:
-# https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml
+# Immich images are pinned to v2.7.5, the version this webapp is verified
+# against. Override with IMMICH_VERSION in .env to use a different release (the
+# webapp will warn at startup if the running Immich differs).
+# Reference compose: https://github.com/immich-app/immich/releases/latest/download/docker-compose.yml
 
 name: immich
 
 services:
   immich-server:
     container_name: immich_server
-    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-release}
+    image: ghcr.io/immich-app/immich-server:${IMMICH_VERSION:-v2.7.5}
     # extends:
     #   file: hwaccel.transcoding.yml
     #   service: cpu # set to one of [nvenc, quicksync, rkmpp, vaapi, vaapi-wsl] for accelerated transcoding
@@ -41,8 +43,8 @@ services:
   immich-machine-learning:
     container_name: immich_machine_learning
     # For hardware acceleration, add one of -[armnn, cuda, rocm, openvino, rknn] to the image tag.
-    # Example tag: ${IMMICH_VERSION:-release}-cuda
-    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-release}
+    # Example tag: ${IMMICH_VERSION:-v2.7.5}-cuda
+    image: ghcr.io/immich-app/immich-machine-learning:${IMMICH_VERSION:-v2.7.5}
     # extends: # uncomment this section for hardware acceleration - see https://docs.immich.app/features/ml-hardware-acceleration
     #   file: hwaccel.ml.yml
     #   service: cpu # set to one of [armnn, cuda, rocm, openvino, openvino-wsl, rknn] for accelerated inference - use the `-wsl` version for WSL2 where applicable
@@ -85,7 +87,7 @@ services:
   # ---------------------------------------------------------------------------
   immich-signup:
     container_name: immich_signup
-    image: ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.2
+    image: ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.3
     # To build from source instead of pulling, comment out `image:` above and
     # uncomment the block below, then start with `--build`:
     # build:

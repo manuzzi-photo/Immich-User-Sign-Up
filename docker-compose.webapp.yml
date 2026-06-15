@@ -18,7 +18,7 @@ name: immich
 services:
   immich-signup:
     container_name: immich_signup
-    image: ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.2
+    image: ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.3
     # To build locally from source instead of pulling, comment out `image:`
     # above and uncomment the block below, then run with `--build`:
     # build:

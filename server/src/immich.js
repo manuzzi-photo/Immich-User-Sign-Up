@@ -69,6 +69,11 @@ export const immich = {
     });
   },
 
+  // Server version (public endpoint): { major, minor, patch, prerelease }.
+  async getServerVersion() {
+    return request('/api/server/version');
+  },
+
   // Return true if an account with this email already exists in Immich.
   async emailExists(email) {
     const users = await request('/api/admin/users', { useApiKey: true });

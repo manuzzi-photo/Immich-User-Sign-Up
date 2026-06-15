@@ -5,6 +5,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import { config } from './config.js';
 import './db.js';
+import { immich } from './immich.js';
 import authRoutes from './routes/auth.js';
 import registerRoutes from './routes/register.js';
 import adminRoutes from './routes/admin.js';
@@ -58,4 +59,24 @@ app.listen(config.port, () => {
   if (!config.immichApiKey) {
     console.warn('WARNING: IMMICH_API_KEY is not set — automatic user creation will fail.');
   }
+  verifyImmichVersion();
 });
+
+// This build is verified against a specific Immich version (config.supportedImmichVersion).
+// User provisioning and SSO depend on Immich internals, so warn loudly on a mismatch.
+async function verifyImmichVersion() {
+  try {
+    const v = await immich.getServerVersion();
+    const running = `${v.major}.${v.minor}.${v.patch}`;
+    if (running === config.supportedImmichVersion) {
+      console.log(`Immich version ${running} matches the supported version.`);
+    } else {
+      console.warn(
+        `WARNING: connected Immich is ${running} but this build is verified against ` +
+          `${config.supportedImmichVersion}. User creation/SSO rely on Immich internals and may behave differently.`
+      );
+    }
+  } catch (err) {
+    console.warn(`Could not determine the Immich version: ${err.message}`);
+  }
+}

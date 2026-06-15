@@ -59,6 +59,11 @@ export const config = {
   // Domain for SSO. Required when ssoEnabled is true. Example: ".example.com".
   immichCookieDomain: (process.env.IMMICH_COOKIE_DOMAIN || '').trim(),
 
+  // Immich version this build is verified against. User creation and especially
+  // SSO rely on Immich internals (cookie names, API shapes), so the app checks
+  // the connected server at startup and warns on a mismatch.
+  supportedImmichVersion: (process.env.IMMICH_REQUIRED_VERSION || '2.7.5').trim(),
+
   isProd,
 };
 

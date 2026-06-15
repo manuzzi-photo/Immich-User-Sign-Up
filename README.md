@@ -14,6 +14,11 @@ instance, with **invite codes** and **manual admin approval**.
   their Immich credentials).
 - Runs as a **single Docker container** exposed on port **2284**.
 
+> **Compatibility:** verified against **Immich v2.7.5**. User provisioning and
+> SSO rely on Immich internals, so the example stack pins Immich to `v2.7.5` and
+> the app warns at startup if the connected server reports a different version
+> (override the expected version with `IMMICH_REQUIRED_VERSION`).
+
 ## How it works
 
 ```
@@ -80,15 +85,15 @@ Prebuilt multi-arch images (`linux/amd64`, `linux/arm64`) are published to the
 GitHub Container Registry:
 
 ```
-ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.2   # pinned release (Node.js 24)
+ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.3   # pinned release
 ghcr.io/manuzzi-photo/immich-user-sign-up:devel   # latest development build
 ```
 
-> `0.0.1` is the very first release and is built on Node.js 20; `0.0.2` and
-> later are built on Node.js 24.
+> `0.0.1` is built on Node.js 20; `0.0.2`+ on Node.js 24. `0.0.3` adds EN/IT
+> i18n, existing-user login and optional SSO, verified against Immich v2.7.5.
 
 ```bash
-docker pull ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.2
+docker pull ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.3
 ```
 
 Images are built and pushed automatically by the
