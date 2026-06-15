@@ -2,10 +2,11 @@
 # Complete example: full Immich stack + the Immich Sign-Up webapp.
 #
 # This is the official Immich docker-compose with the `immich-signup` service
-# added at the end. Copy `.env.example` values into your `.env` (the same one
-# Immich uses) and start everything with:
+# added at the end. The sign-up service uses the prebuilt image from GHCR, so no
+# local build is required. Copy `.env.example` values into your `.env` (the same
+# one Immich uses) and start everything with:
 #
-#   docker compose -f docker-compose.example.yml up -d --build
+#   docker compose -f docker-compose.example.yml up -d
 #
 # Then generate an admin API key inside Immich (Account Settings -> API Keys)
 # and put it in IMMICH_SIGNUP_API_KEY before the sign-up webapp can create users.
@@ -84,10 +85,12 @@ services:
   # ---------------------------------------------------------------------------
   immich-signup:
     container_name: immich_signup
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: immich-signup:latest
+    image: ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.1
+    # To build from source instead of pulling, comment out `image:` above and
+    # uncomment the block below, then start with `--build`:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     environment:
       # Immich server reachable on the shared Docker network.
       IMMICH_API_URL: ${IMMICH_API_URL:-http://immich-server:2283}

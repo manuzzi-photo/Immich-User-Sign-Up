@@ -1,11 +1,15 @@
 # Immich Sign-Up webapp.
 #
-# Option A — merge these services into your existing Immich docker-compose.yml.
+# Uses the prebuilt image published on GitHub Container Registry, so you can run
+# it without cloning this repository. Pin a version tag (0.0.1) for stability or
+# use `devel` to track the latest development build.
+#
+# Option A — merge this service into your existing Immich docker-compose.yml.
 # Option B — run as a standalone stack: this file already references the same
 # project name ("immich") and the same default network, so it can attach to
 # the Immich containers. Start it with:
 #
-#   docker compose -f docker-compose.webapp.yml up -d --build
+#   docker compose -f docker-compose.webapp.yml up -d
 #
 # Make sure the variables in `.env` (see .env.example) are set first.
 
@@ -14,10 +18,12 @@ name: immich
 services:
   immich-signup:
     container_name: immich_signup
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: immich-signup:latest
+    image: ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.1
+    # To build locally from source instead of pulling, comment out `image:`
+    # above and uncomment the block below, then run with `--build`:
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
     env_file:
       - .env
     environment:

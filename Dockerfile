@@ -20,6 +20,9 @@ RUN npm install --omit=dev
 
 # ---------- Stage 3: runtime image ----------
 FROM node:20-slim AS runtime
+LABEL org.opencontainers.image.source="https://github.com/manuzzi-photo/Immich-User-Sign-Up"
+LABEL org.opencontainers.image.description="Self sign-up webapp for an existing Immich instance (invite codes + admin approval)"
+LABEL org.opencontainers.image.licenses="GPL-3.0"
 ENV NODE_ENV=production
 WORKDIR /app/server
 

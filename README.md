@@ -53,7 +53,7 @@ Copy `.env.example` and fill in the values (you can append them to the same
 **Option A — full stack from scratch** (Immich + the sign-up webapp together):
 
 ```bash
-docker compose -f docker-compose.example.yml up -d --build
+docker compose -f docker-compose.example.yml up -d
 ```
 
 This is the official Immich compose with the `immich-signup` service added.
@@ -61,7 +61,7 @@ This is the official Immich compose with the `immich-signup` service added.
 **Option B — add to an existing Immich stack** (webapp only):
 
 ```bash
-docker compose -f docker-compose.webapp.yml up -d --build
+docker compose -f docker-compose.webapp.yml up -d
 ```
 
 This attaches to the existing `immich` Docker network. You can also merge the
@@ -71,6 +71,29 @@ Either way the webapp is exposed on <http://localhost:2284>:
 
 - Registration page: `http://localhost:2284/`
 - Admin area: `http://localhost:2284/admin`
+
+## Container image (GHCR)
+
+Prebuilt multi-arch images (`linux/amd64`, `linux/arm64`) are published to the
+GitHub Container Registry:
+
+```
+ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.1   # pinned release
+ghcr.io/manuzzi-photo/immich-user-sign-up:devel   # latest development build
+```
+
+```bash
+docker pull ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.1
+```
+
+Images are built and pushed automatically by the
+[`Publish container image`](.github/workflows/docker-publish.yml) GitHub Actions
+workflow on every push to `main` and on every git tag. To cut a new release,
+push a tag (e.g. `git tag 0.0.2 && git push origin 0.0.2`).
+
+> **First publish:** after the first successful workflow run, open the package
+> on GitHub → *Package settings* and set its visibility to **Public** so anyone
+> can pull without authentication.
 
 ## Local development
 
