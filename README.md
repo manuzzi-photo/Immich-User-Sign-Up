@@ -78,18 +78,21 @@ Prebuilt multi-arch images (`linux/amd64`, `linux/arm64`) are published to the
 GitHub Container Registry:
 
 ```
-ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.1   # pinned release
+ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.2   # pinned release (Node.js 24)
 ghcr.io/manuzzi-photo/immich-user-sign-up:devel   # latest development build
 ```
 
+> `0.0.1` is the very first release and is built on Node.js 20; `0.0.2` and
+> later are built on Node.js 24.
+
 ```bash
-docker pull ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.1
+docker pull ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.2
 ```
 
 Images are built and pushed automatically by the
 [`Publish container image`](.github/workflows/docker-publish.yml) GitHub Actions
 workflow on every push to `main` and on every git tag. To cut a new release,
-push a tag (e.g. `git tag 0.0.2 && git push origin 0.0.2`).
+push a tag (e.g. `git tag 0.0.3 && git push origin 0.0.3`).
 
 > **First publish:** after the first successful workflow run, open the package
 > on GitHub → *Package settings* and set its visibility to **Public** so anyone

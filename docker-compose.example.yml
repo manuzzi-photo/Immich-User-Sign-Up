@@ -85,7 +85,7 @@ services:
   # ---------------------------------------------------------------------------
   immich-signup:
     container_name: immich_signup
-    image: ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.1
+    image: ghcr.io/manuzzi-photo/immich-user-sign-up:0.0.2
     # To build from source instead of pulling, comment out `image:` above and
     # uncomment the block below, then start with `--build`:
     # build:
