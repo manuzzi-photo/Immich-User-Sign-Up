@@ -1,0 +1,110 @@
+{
+  "lang": { "label": "Lingua", "en": "English", "it": "Italiano" },
+  "register": {
+    "title": "Crea il tuo account",
+    "subtitle": "Richiedi l'accesso alla libreria fotografica Immich.",
+    "name": "Nome",
+    "namePlaceholder": "Mario Rossi",
+    "email": "Email",
+    "emailPlaceholder": "mario@esempio.it",
+    "password": "Password",
+    "passwordPlaceholder": "Almeno 8 caratteri",
+    "confirm": "Conferma password",
+    "inviteCode": "Codice di invito",
+    "optional": "(opzionale)",
+    "inviteHint": "Con un codice di invito valido l'account viene attivato immediatamente. Senza codice, la richiesta sarà revisionata da un amministratore. Se hai già un account, inserisci email e password per accedere.",
+    "quota": "Quota di archiviazione: {{quota}}",
+    "submit": "Registrati",
+    "submitting": "Invio in corso…",
+    "goToImmich": "Vai a Immich per accedere →",
+    "adminArea": "Area amministratore",
+    "passwordTooShort": "La password deve contenere almeno 8 caratteri.",
+    "passwordMismatch": "Le password non coincidono."
+  },
+  "status": {
+    "REGISTERED_APPROVED": "Il tuo account è stato creato. Ora puoi accedere a Immich.",
+    "REGISTRATION_PENDING": "La tua registrazione è stata ricevuta ed è in attesa di approvazione da parte di un amministratore. Potrai accedere una volta approvata.",
+    "EXISTING_LOGIN_OK_SSO": "Hai già un account — accesso in corso, reindirizzamento a Immich…",
+    "EXISTING_LOGIN_OK": "Hai già un account. Reindirizzamento a Immich per l'accesso…",
+    "EXISTING_LOGIN_FAILED": "Esiste già un account con questa email. Reindirizzamento a Immich per l'accesso…",
+    "redirecting": "Reindirizzamento…"
+  },
+  "adminLogin": {
+    "title": "Accesso amministratore",
+    "subtitle": "Accedi con le credenziali del tuo account amministratore Immich.",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Accedi",
+    "submitting": "Accesso in corso…",
+    "back": "← Torna alla registrazione"
+  },
+  "admin": {
+    "brand": "Immich Sign-Up",
+    "logout": "Esci",
+    "loading": "Caricamento…",
+    "tabs": { "pending": "Richieste in attesa", "codes": "Codici di invito", "history": "Storico" },
+    "pending": {
+      "name": "Nome",
+      "email": "Email",
+      "submittedCode": "Codice inserito",
+      "requested": "Richiesta del",
+      "approve": "Approva",
+      "reject": "Rifiuta",
+      "empty": "Nessuna registrazione in attesa. 🎉"
+    },
+    "codes": {
+      "label": "Etichetta",
+      "labelPlaceholder": "es. Famiglia",
+      "maxUses": "Utilizzi max",
+      "expiresAt": "Scadenza (opzionale)",
+      "generate": "Genera codice",
+      "generating": "Creazione…",
+      "code": "Codice",
+      "uses": "Utilizzi",
+      "expires": "Scadenza",
+      "never": "Mai",
+      "status": "Stato",
+      "revoke": "Revoca",
+      "delete": "Elimina",
+      "confirmDelete": "Eliminare definitivamente questo codice di invito?",
+      "empty": "Nessun codice di invito.",
+      "copyTitle": "Clicca per copiare",
+      "state": {
+        "active": "attivo",
+        "revoked": "revocato",
+        "expired": "scaduto",
+        "exhausted": "esaurito"
+      }
+    },
+    "history": {
+      "name": "Nome",
+      "email": "Email",
+      "status": "Stato",
+      "reviewedBy": "Revisionato da",
+      "reviewedAt": "Revisionato il",
+      "note": "Nota",
+      "auto": "automatico (codice invito)",
+      "statuses": { "approved": "approvato", "rejected": "rifiutato" },
+      "empty": "Nessuno storico."
+    }
+  },
+  "errors": {
+    "generic": "Si è verificato un errore. Riprova.",
+    "INVALID_INPUT": "Controlla le informazioni inserite.",
+    "INVALID_CREDENTIALS": "Credenziali non valide.",
+    "NOT_ADMIN": "Questo account non è un amministratore Immich.",
+    "NOT_AUTHENTICATED": "Effettua l'accesso.",
+    "SESSION_EXPIRED": "La sessione è scaduta. Effettua di nuovo l'accesso.",
+    "RATE_LIMITED": "Troppi tentativi. Riprova più tardi.",
+    "IMMICH_UNREACHABLE": "Impossibile raggiungere il server Immich. Riprova più tardi.",
+    "IMMICH_ERROR": "Immich ha rifiutato la richiesta.",
+    "EMAIL_EXISTS": "Esiste già un account con questa email.",
+    "REGISTRATION_PENDING_DUPLICATE": "Esiste già una richiesta di registrazione in attesa con questa email.",
+    "CODE_NOT_FOUND": "Codice di invito non trovato.",
+    "CODE_GENERATION_FAILED": "Impossibile generare un codice univoco. Riprova.",
+    "REGISTRATION_NOT_FOUND": "Registrazione non trovata.",
+    "ALREADY_REVIEWED": "Questa registrazione è già stata revisionata.",
+    "PASSWORD_UNAVAILABLE": "La password memorizzata non è più disponibile.",
+    "INTERNAL_ERROR": "Errore interno del server."
+  }
+}

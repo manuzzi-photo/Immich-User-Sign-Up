@@ -1,0 +1,110 @@
+{
+  "lang": { "label": "Language", "en": "English", "it": "Italiano" },
+  "register": {
+    "title": "Create your account",
+    "subtitle": "Request access to the Immich photo library.",
+    "name": "Name",
+    "namePlaceholder": "Jane Doe",
+    "email": "Email",
+    "emailPlaceholder": "jane@example.com",
+    "password": "Password",
+    "passwordPlaceholder": "At least 8 characters",
+    "confirm": "Confirm password",
+    "inviteCode": "Invite code",
+    "optional": "(optional)",
+    "inviteHint": "With a valid invite code your account is activated immediately. Without one, your request will be reviewed by an administrator. If you already have an account, enter your email and password to sign in.",
+    "quota": "Storage quota: {{quota}}",
+    "submit": "Register",
+    "submitting": "Submitting…",
+    "goToImmich": "Go to Immich to sign in →",
+    "adminArea": "Administrator area",
+    "passwordTooShort": "Password must be at least 8 characters long.",
+    "passwordMismatch": "Passwords do not match."
+  },
+  "status": {
+    "REGISTERED_APPROVED": "Your account has been created. You can now sign in to Immich.",
+    "REGISTRATION_PENDING": "Your registration was received and is pending administrator approval. You will be able to sign in once it is approved.",
+    "EXISTING_LOGIN_OK_SSO": "You already have an account — signing you in, redirecting to Immich…",
+    "EXISTING_LOGIN_OK": "You already have an account. Redirecting you to Immich to sign in…",
+    "EXISTING_LOGIN_FAILED": "An account with this email already exists. Redirecting you to Immich to sign in…",
+    "redirecting": "Redirecting…"
+  },
+  "adminLogin": {
+    "title": "Administrator login",
+    "subtitle": "Sign in with your Immich administrator credentials.",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "back": "← Back to registration"
+  },
+  "admin": {
+    "brand": "Immich Sign-Up",
+    "logout": "Logout",
+    "loading": "Loading…",
+    "tabs": { "pending": "Pending requests", "codes": "Invite codes", "history": "History" },
+    "pending": {
+      "name": "Name",
+      "email": "Email",
+      "submittedCode": "Submitted code",
+      "requested": "Requested",
+      "approve": "Approve",
+      "reject": "Reject",
+      "empty": "No pending registrations. 🎉"
+    },
+    "codes": {
+      "label": "Label",
+      "labelPlaceholder": "e.g. Family",
+      "maxUses": "Max uses",
+      "expiresAt": "Expires at (optional)",
+      "generate": "Generate code",
+      "generating": "Creating…",
+      "code": "Code",
+      "uses": "Uses",
+      "expires": "Expires",
+      "never": "Never",
+      "status": "Status",
+      "revoke": "Revoke",
+      "delete": "Delete",
+      "confirmDelete": "Delete this invite code permanently?",
+      "empty": "No invite codes yet.",
+      "copyTitle": "Click to copy",
+      "state": {
+        "active": "active",
+        "revoked": "revoked",
+        "expired": "expired",
+        "exhausted": "exhausted"
+      }
+    },
+    "history": {
+      "name": "Name",
+      "email": "Email",
+      "status": "Status",
+      "reviewedBy": "Reviewed by",
+      "reviewedAt": "Reviewed at",
+      "note": "Note",
+      "auto": "auto (invite code)",
+      "statuses": { "approved": "approved", "rejected": "rejected" },
+      "empty": "No history yet."
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "INVALID_INPUT": "Please check the information you entered.",
+    "INVALID_CREDENTIALS": "Invalid credentials.",
+    "NOT_ADMIN": "This account is not an Immich administrator.",
+    "NOT_AUTHENTICATED": "Please sign in.",
+    "SESSION_EXPIRED": "Your session has expired. Please sign in again.",
+    "RATE_LIMITED": "Too many attempts. Please try again later.",
+    "IMMICH_UNREACHABLE": "Cannot reach the Immich server. Please try again later.",
+    "IMMICH_ERROR": "Immich rejected the request.",
+    "EMAIL_EXISTS": "An account with this email already exists.",
+    "REGISTRATION_PENDING_DUPLICATE": "A registration request with this email is already pending review.",
+    "CODE_NOT_FOUND": "Invite code not found.",
+    "CODE_GENERATION_FAILED": "Could not generate a unique code. Please try again.",
+    "REGISTRATION_NOT_FOUND": "Registration not found.",
+    "ALREADY_REVIEWED": "This registration has already been reviewed.",
+    "PASSWORD_UNAVAILABLE": "The stored password is no longer available.",
+    "INTERNAL_ERROR": "Internal server error."
+  }
+}

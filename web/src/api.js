@@ -10,9 +10,17 @@ async function request(path, options = {}) {
   if (!res.ok) {
     const err = new Error(data?.message || `Request failed (${res.status})`);
     err.status = res.status;
+    err.code = data?.code || null;
     throw err;
   }
   return data;
+}
+
+// Translate an API error into a localized message, falling back to the
+// server-provided message and finally to a generic string.
+export function errorMessage(t, err) {
+  if (err?.code) return t(`errors.${err.code}`, { defaultValue: err.message || t('errors.generic') });
+  return err?.message || t('errors.generic');
 }
 
 export const api = {

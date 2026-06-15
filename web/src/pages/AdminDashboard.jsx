@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { api } from '../api.js';
+import { useTranslation } from 'react-i18next';
+import { api, errorMessage } from '../api.js';
+import LanguageSwitcher from '../components/LanguageSwitcher.jsx';
 
 function fmtDate(s) {
   if (!s) return '—';
@@ -9,6 +11,7 @@ function fmtDate(s) {
 }
 
 export default function AdminDashboard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [admin, setAdmin] = useState(null);
   const [tab, setTab] = useState('pending');
@@ -25,31 +28,37 @@ export default function AdminDashboard() {
     navigate('/admin/login');
   }
 
-  if (!admin) return <div className="page"><div className="loading">Loading…</div></div>;
+  if (!admin)
+    return (
+      <div className="page">
+        <div className="loading">{t('admin.loading')}</div>
+      </div>
+    );
 
   return (
     <div className="dashboard">
       <header className="topbar">
         <div>
-          <strong>Immich Sign-Up</strong> — Admin
+          <strong>{t('admin.brand')}</strong> — Admin
         </div>
         <div className="topbar-right">
+          <LanguageSwitcher />
           <span className="admin-email">{admin.email}</span>
           <button className="ghost" onClick={logout}>
-            Logout
+            {t('admin.logout')}
           </button>
         </div>
       </header>
 
       <nav className="tabs">
         <button className={tab === 'pending' ? 'active' : ''} onClick={() => setTab('pending')}>
-          Pending requests
+          {t('admin.tabs.pending')}
         </button>
         <button className={tab === 'codes' ? 'active' : ''} onClick={() => setTab('codes')}>
-          Invite codes
+          {t('admin.tabs.codes')}
         </button>
         <button className={tab === 'history' ? 'active' : ''} onClick={() => setTab('history')}>
-          History
+          {t('admin.tabs.history')}
         </button>
       </nav>
 
@@ -65,6 +74,7 @@ export default function AdminDashboard() {
 /* ------------------------------ Pending tab ------------------------------- */
 
 function PendingTab() {
+  const { t } = useTranslation();
   const [rows, setRows] = useState(null);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(null);
@@ -73,8 +83,8 @@ function PendingTab() {
     api
       .listRegistrations('pending')
       .then(setRows)
-      .catch((e) => setError(e.message));
-  }, []);
+      .catch((e) => setError(errorMessage(t, e)));
+  }, [t]);
 
   useEffect(load, [load]);
 
@@ -86,24 +96,24 @@ function PendingTab() {
       else await api.rejectRegistration(id);
       load();
     } catch (e) {
-      setError(e.message);
+      setError(errorMessage(t, e));
     } finally {
       setBusy(null);
     }
   }
 
   if (error) return <div className="alert alert-error">{error}</div>;
-  if (!rows) return <div className="loading">Loading…</div>;
-  if (rows.length === 0) return <div className="empty">No pending registrations. 🎉</div>;
+  if (!rows) return <div className="loading">{t('admin.loading')}</div>;
+  if (rows.length === 0) return <div className="empty">{t('admin.pending.empty')}</div>;
 
   return (
     <table className="data-table">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Submitted code</th>
-          <th>Requested</th>
+          <th>{t('admin.pending.name')}</th>
+          <th>{t('admin.pending.email')}</th>
+          <th>{t('admin.pending.submittedCode')}</th>
+          <th>{t('admin.pending.requested')}</th>
           <th></th>
         </tr>
       </thead>
@@ -115,19 +125,11 @@ function PendingTab() {
             <td>{r.submitted_code ? <code className="bad-code">{r.submitted_code}</code> : '—'}</td>
             <td>{fmtDate(r.created_at)}</td>
             <td className="actions">
-              <button
-                className="approve"
-                disabled={busy === r.id}
-                onClick={() => act(r.id, 'approve')}
-              >
-                Approve
+              <button className="approve" disabled={busy === r.id} onClick={() => act(r.id, 'approve')}>
+                {t('admin.pending.approve')}
               </button>
-              <button
-                className="reject"
-                disabled={busy === r.id}
-                onClick={() => act(r.id, 'reject')}
-              >
-                Reject
+              <button className="reject" disabled={busy === r.id} onClick={() => act(r.id, 'reject')}>
+                {t('admin.pending.reject')}
               </button>
             </td>
           </tr>
@@ -140,6 +142,7 @@ function PendingTab() {
 /* ------------------------------- Codes tab -------------------------------- */
 
 function CodesTab() {
+  const { t } = useTranslation();
   const [rows, setRows] = useState(null);
   const [error, setError] = useState(null);
   const [label, setLabel] = useState('');
@@ -151,8 +154,8 @@ function CodesTab() {
     api
       .listInviteCodes()
       .then(setRows)
-      .catch((e) => setError(e.message));
-  }, []);
+      .catch((e) => setError(errorMessage(t, e)));
+  }, [t]);
 
   useEffect(load, [load]);
 
@@ -171,19 +174,19 @@ function CodesTab() {
       setExpiresAt('');
       load();
     } catch (e) {
-      setError(e.message);
+      setError(errorMessage(t, e));
     } finally {
       setCreating(false);
     }
   }
 
   async function revoke(id) {
-    await api.revokeInviteCode(id).catch((e) => setError(e.message));
+    await api.revokeInviteCode(id).catch((e) => setError(errorMessage(t, e)));
     load();
   }
   async function remove(id) {
-    if (!window.confirm('Delete this invite code permanently?')) return;
-    await api.deleteInviteCode(id).catch((e) => setError(e.message));
+    if (!window.confirm(t('admin.codes.confirmDelete'))) return;
+    await api.deleteInviteCode(id).catch((e) => setError(errorMessage(t, e)));
     load();
   }
 
@@ -195,25 +198,20 @@ function CodesTab() {
     <div>
       <form className="inline-form" onSubmit={create}>
         <div className="field">
-          <label>Label</label>
+          <label>{t('admin.codes.label')}</label>
           <input
             type="text"
             value={label}
-            placeholder="e.g. Family"
+            placeholder={t('admin.codes.labelPlaceholder')}
             onChange={(e) => setLabel(e.target.value)}
           />
         </div>
         <div className="field">
-          <label>Max uses</label>
-          <input
-            type="number"
-            min="1"
-            value={maxUses}
-            onChange={(e) => setMaxUses(e.target.value)}
-          />
+          <label>{t('admin.codes.maxUses')}</label>
+          <input type="number" min="1" value={maxUses} onChange={(e) => setMaxUses(e.target.value)} />
         </div>
         <div className="field">
-          <label>Expires at (optional)</label>
+          <label>{t('admin.codes.expiresAt')}</label>
           <input
             type="datetime-local"
             value={expiresAt}
@@ -221,25 +219,25 @@ function CodesTab() {
           />
         </div>
         <button type="submit" disabled={creating}>
-          {creating ? 'Creating…' : 'Generate code'}
+          {creating ? t('admin.codes.generating') : t('admin.codes.generate')}
         </button>
       </form>
 
       {error && <div className="alert alert-error">{error}</div>}
 
       {!rows ? (
-        <div className="loading">Loading…</div>
+        <div className="loading">{t('admin.loading')}</div>
       ) : rows.length === 0 ? (
-        <div className="empty">No invite codes yet.</div>
+        <div className="empty">{t('admin.codes.empty')}</div>
       ) : (
         <table className="data-table">
           <thead>
             <tr>
-              <th>Code</th>
-              <th>Label</th>
-              <th>Uses</th>
-              <th>Expires</th>
-              <th>Status</th>
+              <th>{t('admin.codes.code')}</th>
+              <th>{t('admin.codes.label')}</th>
+              <th>{t('admin.codes.uses')}</th>
+              <th>{t('admin.codes.expires')}</th>
+              <th>{t('admin.codes.status')}</th>
               <th></th>
             </tr>
           </thead>
@@ -257,7 +255,11 @@ function CodesTab() {
               return (
                 <tr key={c.id}>
                   <td>
-                    <code className="invite-code" title="Click to copy" onClick={() => copy(c.code)}>
+                    <code
+                      className="invite-code"
+                      title={t('admin.codes.copyTitle')}
+                      onClick={() => copy(c.code)}
+                    >
                       {c.code}
                     </code>
                   </td>
@@ -265,18 +267,18 @@ function CodesTab() {
                   <td>
                     {c.used_count} / {c.max_uses}
                   </td>
-                  <td>{c.expires_at ? fmtDate(c.expires_at) : 'Never'}</td>
+                  <td>{c.expires_at ? fmtDate(c.expires_at) : t('admin.codes.never')}</td>
                   <td>
-                    <span className={`badge badge-${state}`}>{state}</span>
+                    <span className={`badge badge-${state}`}>{t(`admin.codes.state.${state}`)}</span>
                   </td>
                   <td className="actions">
                     {c.active && (
                       <button className="ghost" onClick={() => revoke(c.id)}>
-                        Revoke
+                        {t('admin.codes.revoke')}
                       </button>
                     )}
                     <button className="reject" onClick={() => remove(c.id)}>
-                      Delete
+                      {t('admin.codes.delete')}
                     </button>
                   </td>
                 </tr>
@@ -292,6 +294,7 @@ function CodesTab() {
 /* ------------------------------ History tab ------------------------------- */
 
 function HistoryTab() {
+  const { t } = useTranslation();
   const [rows, setRows] = useState(null);
   const [error, setError] = useState(null);
 
@@ -299,23 +302,23 @@ function HistoryTab() {
     api
       .listRegistrations()
       .then((all) => setRows(all.filter((r) => r.status !== 'pending')))
-      .catch((e) => setError(e.message));
-  }, []);
+      .catch((e) => setError(errorMessage(t, e)));
+  }, [t]);
 
   if (error) return <div className="alert alert-error">{error}</div>;
-  if (!rows) return <div className="loading">Loading…</div>;
-  if (rows.length === 0) return <div className="empty">No history yet.</div>;
+  if (!rows) return <div className="loading">{t('admin.loading')}</div>;
+  if (rows.length === 0) return <div className="empty">{t('admin.history.empty')}</div>;
 
   return (
     <table className="data-table">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Status</th>
-          <th>Reviewed by</th>
-          <th>Reviewed at</th>
-          <th>Note</th>
+          <th>{t('admin.history.name')}</th>
+          <th>{t('admin.history.email')}</th>
+          <th>{t('admin.history.status')}</th>
+          <th>{t('admin.history.reviewedBy')}</th>
+          <th>{t('admin.history.reviewedAt')}</th>
+          <th>{t('admin.history.note')}</th>
         </tr>
       </thead>
       <tbody>
@@ -325,10 +328,10 @@ function HistoryTab() {
             <td>{r.email}</td>
             <td>
               <span className={`badge badge-${r.status === 'approved' ? 'active' : 'revoked'}`}>
-                {r.status}
+                {t(`admin.history.statuses.${r.status}`)}
               </span>
             </td>
-            <td>{r.reviewed_by || (r.invite_code_id ? 'auto (invite code)' : '—')}</td>
+            <td>{r.reviewed_by || (r.invite_code_id ? t('admin.history.auto') : '—')}</td>
             <td>{fmtDate(r.reviewed_at)}</td>
             <td>{r.note || '—'}</td>
           </tr>

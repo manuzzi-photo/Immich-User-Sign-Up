@@ -44,12 +44,17 @@ if (fs.existsSync(webDist)) {
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(500).json({ message: 'Internal server error' });
+  res.status(500).json({ code: 'INTERNAL_ERROR', message: 'Internal server error' });
 });
 
 app.listen(config.port, () => {
   console.log(`Immich Sign-Up webapp listening on port ${config.port}`);
   console.log(`Immich API: ${config.immichApiUrl}`);
+  console.log(
+    `Existing-user mode: ${
+      config.ssoEnabled ? `SSO (cookie domain ${config.immichCookieDomain})` : 'redirect-only'
+    }`
+  );
   if (!config.immichApiKey) {
     console.warn('WARNING: IMMICH_API_KEY is not set — automatic user creation will fail.');
   }

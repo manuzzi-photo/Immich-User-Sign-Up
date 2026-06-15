@@ -104,6 +104,9 @@ services:
       IMMICH_PUBLIC_URL: ${IMMICH_PUBLIC_URL:-}
       # Set to 1 when served over HTTPS.
       COOKIE_SECURE: ${SIGNUP_COOKIE_SECURE:-0}
+      # Existing-user SSO (optional): true requires a shared parent domain.
+      SSO_ENABLED: ${SSO_ENABLED:-false}
+      IMMICH_COOKIE_DOMAIN: ${IMMICH_COOKIE_DOMAIN:-}
       NODE_ENV: production
     ports:
       - '2284:2284'

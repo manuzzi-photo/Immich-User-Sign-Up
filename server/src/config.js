@@ -47,5 +47,28 @@ export const config = {
   // Set to '1' when served over HTTPS so the session cookie gets the Secure flag.
   cookieSecure: process.env.COOKIE_SECURE === '1',
 
+  // When an already-existing user submits correct credentials:
+  //  - ssoEnabled = true  -> set Immich's session cookies so the browser lands
+  //                          already authenticated (requires a shared parent
+  //                          domain, see immichCookieDomain).
+  //  - ssoEnabled = false -> only validate the credentials and redirect to
+  //                          immichPublicUrl.
+  ssoEnabled: process.env.SSO_ENABLED === 'true' || process.env.SSO_ENABLED === '1',
+
+  // Parent domain (eTLD+1) shared by the webapp and Immich, used as the cookie
+  // Domain for SSO. Required when ssoEnabled is true. Example: ".example.com".
+  immichCookieDomain: (process.env.IMMICH_COOKIE_DOMAIN || '').trim(),
+
   isProd,
 };
+
+// SSO needs a cookie domain shared with Immich; without it the session cookie
+// would be host-only on the sign-up subdomain and never reach Immich. Degrade
+// gracefully to redirect-only mode instead of failing silently.
+if (config.ssoEnabled && !config.immichCookieDomain) {
+  console.warn(
+    'WARNING: SSO_ENABLED is set but IMMICH_COOKIE_DOMAIN is empty — ' +
+      'falling back to redirect-only mode. Set IMMICH_COOKIE_DOMAIN (e.g. ".example.com") to enable SSO.'
+  );
+  config.ssoEnabled = false;
+}

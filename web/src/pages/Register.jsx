@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { api } from '../api.js';
+import { useTranslation } from 'react-i18next';
+import { api, errorMessage } from '../api.js';
+import LanguageSwitcher from '../components/LanguageSwitcher.jsx';
 
 function formatBytes(bytes) {
   if (!bytes) return '';
@@ -8,7 +10,11 @@ function formatBytes(bytes) {
   return Number.isInteger(gb) ? `${gb} GB` : `${gb.toFixed(1)} GB`;
 }
 
+// Give the user a moment to read the message before redirecting.
+const REDIRECT_DELAY_MS = 2500;
+
 export default function Register() {
+  const { t } = useTranslation();
   const [form, setForm] = useState({
     email: '',
     name: '',
@@ -26,15 +32,22 @@ export default function Register() {
 
   const update = (field) => (e) => setForm({ ...form, [field]: e.target.value });
 
+  function redirectTo(url) {
+    if (!url) return;
+    setTimeout(() => {
+      window.location.href = url;
+    }, REDIRECT_DELAY_MS);
+  }
+
   async function onSubmit(e) {
     e.preventDefault();
     setStatus(null);
 
     if (form.password.length < 8) {
-      return setStatus({ type: 'error', message: 'Password must be at least 8 characters long.' });
+      return setStatus({ type: 'error', message: t('register.passwordTooShort') });
     }
     if (form.password !== form.confirm) {
-      return setStatus({ type: 'error', message: 'Passwords do not match.' });
+      return setStatus({ type: 'error', message: t('register.passwordMismatch') });
     }
 
     setSubmitting(true);
@@ -45,10 +58,32 @@ export default function Register() {
         password: form.password,
         inviteCode: form.inviteCode,
       });
-      setStatus({ type: res.status === 'approved' ? 'success' : 'pending', message: res.message });
-      setForm({ email: '', name: '', password: '', confirm: '', inviteCode: '' });
+
+      switch (res.code) {
+        case 'REGISTERED_APPROVED':
+          setStatus({ type: 'success', message: t('status.REGISTERED_APPROVED') });
+          setForm({ email: '', name: '', password: '', confirm: '', inviteCode: '' });
+          break;
+        case 'REGISTRATION_PENDING':
+          setStatus({ type: 'pending', message: t('status.REGISTRATION_PENDING') });
+          setForm({ email: '', name: '', password: '', confirm: '', inviteCode: '' });
+          break;
+        case 'EXISTING_LOGIN_OK':
+          setStatus({
+            type: 'success',
+            message: t(res.sso ? 'status.EXISTING_LOGIN_OK_SSO' : 'status.EXISTING_LOGIN_OK'),
+          });
+          redirectTo(res.redirectUrl);
+          break;
+        case 'EXISTING_LOGIN_FAILED':
+          setStatus({ type: 'pending', message: t('status.EXISTING_LOGIN_FAILED') });
+          redirectTo(res.redirectUrl);
+          break;
+        default:
+          setStatus({ type: 'success', message: res.message || '' });
+      }
     } catch (err) {
-      setStatus({ type: 'error', message: err.message });
+      setStatus({ type: 'error', message: errorMessage(t, err) });
     } finally {
       setSubmitting(false);
     }
@@ -57,58 +92,56 @@ export default function Register() {
   return (
     <div className="page">
       <div className="card">
-        <h1>Create your account</h1>
-        <p className="subtitle">Request access to the Immich photo library.</p>
+        <div className="card-head">
+          <h1>{t('register.title')}</h1>
+          <LanguageSwitcher />
+        </div>
+        <p className="subtitle">{t('register.subtitle')}</p>
 
         {status && <div className={`alert alert-${status.type}`}>{status.message}</div>}
 
         <form onSubmit={onSubmit}>
           <label>
-            Name
+            {t('register.name')}
             <input
               type="text"
               value={form.name}
               onChange={update('name')}
-              placeholder="Jane Doe"
+              placeholder={t('register.namePlaceholder')}
               required
             />
           </label>
 
           <label>
-            Email
+            {t('register.email')}
             <input
               type="email"
               value={form.email}
               onChange={update('email')}
-              placeholder="jane@example.com"
+              placeholder={t('register.emailPlaceholder')}
               required
             />
           </label>
 
           <label>
-            Password
+            {t('register.password')}
             <input
               type="password"
               value={form.password}
               onChange={update('password')}
-              placeholder="At least 8 characters"
+              placeholder={t('register.passwordPlaceholder')}
               minLength={8}
               required
             />
           </label>
 
           <label>
-            Confirm password
-            <input
-              type="password"
-              value={form.confirm}
-              onChange={update('confirm')}
-              required
-            />
+            {t('register.confirm')}
+            <input type="password" value={form.confirm} onChange={update('confirm')} required />
           </label>
 
           <label>
-            Invite code <span className="optional">(optional)</span>
+            {t('register.inviteCode')} <span className="optional">{t('register.optional')}</span>
             <input
               type="text"
               value={form.inviteCode}
@@ -116,29 +149,28 @@ export default function Register() {
               placeholder="XXXX-XXXX-XXXX"
               autoComplete="off"
             />
-            <small className="hint">
-              With a valid invite code your account is activated immediately. Without one,
-              your request will be reviewed by an administrator.
-            </small>
+            <small className="hint">{t('register.inviteHint')}</small>
           </label>
 
           {cfg?.defaultQuotaBytes ? (
-            <div className="quota-note">Storage quota: {formatBytes(cfg.defaultQuotaBytes)}</div>
+            <div className="quota-note">
+              {t('register.quota', { quota: formatBytes(cfg.defaultQuotaBytes) })}
+            </div>
           ) : null}
 
           <button type="submit" disabled={submitting}>
-            {submitting ? 'Submitting…' : 'Register'}
+            {submitting ? t('register.submitting') : t('register.submit')}
           </button>
         </form>
 
         {status?.type === 'success' && cfg?.immichPublicUrl ? (
           <a className="signin-link" href={cfg.immichPublicUrl}>
-            Go to Immich to sign in →
+            {t('register.goToImmich')}
           </a>
         ) : null}
 
         <div className="footer-link">
-          <Link to="/admin/login">Administrator area</Link>
+          <Link to="/admin/login">{t('register.adminArea')}</Link>
         </div>
       </div>
     </div>

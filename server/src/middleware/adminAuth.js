@@ -24,26 +24,26 @@ export function clearSession(res) {
 // that the underlying account is still a valid admin (handles revocation).
 export async function requireAdmin(req, res, next) {
   const raw = req.cookies?.[SESSION_COOKIE];
-  if (!raw) return res.status(401).json({ message: 'Not authenticated' });
+  if (!raw) return res.status(401).json({ code: 'NOT_AUTHENTICATED', message: 'Not authenticated' });
 
   let payload;
   try {
     payload = jwt.verify(raw, config.sessionSecret);
   } catch {
     clearSession(res);
-    return res.status(401).json({ message: 'Session expired' });
+    return res.status(401).json({ code: 'SESSION_EXPIRED', message: 'Session expired' });
   }
 
   try {
     const me = await immich.getMe(payload.immichToken);
     if (!me?.isAdmin) {
       clearSession(res);
-      return res.status(403).json({ message: 'Admin privileges required' });
+      return res.status(403).json({ code: 'NOT_ADMIN', message: 'Admin privileges required' });
     }
     req.admin = { email: me.email, name: me.name, id: me.id };
     next();
   } catch {
     clearSession(res);
-    return res.status(401).json({ message: 'Immich session is no longer valid' });
+    return res.status(401).json({ code: 'SESSION_EXPIRED', message: 'Immich session is no longer valid' });
   }
 }

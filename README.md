@@ -45,8 +45,10 @@ Copy `.env.example` and fill in the values (you can append them to the same
 | `IMMICH_SIGNUP_API_KEY` | Immich **admin** API key. |
 | `SIGNUP_SESSION_SECRET` | Random secret (`openssl rand -hex 32`). |
 | `DEFAULT_QUOTA_BYTES` | Per-user quota in bytes (default `5368709120` = 5 GiB). |
-| `IMMICH_PUBLIC_URL` | Optional public Immich URL shown after sign-up. |
+| `IMMICH_PUBLIC_URL` | Public Immich URL: shown after sign-up and used as the redirect target for existing users. |
 | `SIGNUP_COOKIE_SECURE` | `1` if served over HTTPS. |
+| `SSO_ENABLED` | `true` to log existing users straight into Immich (needs a shared domain); `false` (default) to just validate + redirect. |
+| `IMMICH_COOKIE_DOMAIN` | Shared parent domain for the SSO cookie, e.g. `.example.com`. Required when `SSO_ENABLED=true`. |
 
 ## Run with Docker
 
@@ -97,6 +99,69 @@ push a tag (e.g. `git tag 0.0.3 && git push origin 0.0.3`).
 > **First publish:** after the first successful workflow run, open the package
 > on GitHub → *Package settings* and set its visibility to **Public** so anyone
 > can pull without authentication.
+
+## Languages
+
+The UI is available in **English** and **Italian**. The language is detected
+from the browser and can be changed with the switcher in the top-right corner;
+the choice is remembered in `localStorage`.
+
+## Existing users & SSO
+
+If someone submits the registration form with an email that **already** belongs
+to an Immich account, the app validates the password and behaves according to
+`SSO_ENABLED`:
+
+- **`SSO_ENABLED=false`** (default) — on a correct password the user sees a
+  message and is redirected to `IMMICH_PUBLIC_URL`; on a wrong password they are
+  told the profile exists and redirected there to sign in. Works with any
+  deployment.
+- **`SSO_ENABLED=true`** — on a correct password the app sets Immich's own
+  session cookies (`immich_access_token`, `immich_auth_type`,
+  `immich_is_authenticated`) so the browser lands on Immich **already
+  authenticated**.
+
+SSO requires the webapp and Immich to share the same registrable domain
+(eTLD+1), so the session cookie set with `Domain=IMMICH_COOKIE_DOMAIN` reaches
+Immich. Use a reverse proxy with two subdomains:
+
+```nginx
+# signup.example.com -> the webapp
+server {
+  server_name signup.example.com;
+  location / {
+    proxy_pass http://immich-signup:2284;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;   # required so cookies get Secure
+  }
+}
+# photos.example.com -> Immich
+server {
+  server_name photos.example.com;
+  client_max_body_size 50000M;
+  location / {
+    proxy_pass http://immich-server:2283;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+}
+```
+
+Then set:
+
+```ini
+SSO_ENABLED=true
+IMMICH_COOKIE_DOMAIN=.example.com
+IMMICH_PUBLIC_URL=https://photos.example.com
+SIGNUP_COOKIE_SECURE=1
+```
+
+> The cookie names and the `auth_type=password` value are an internal contract
+> of Immich (verified against its source). Pin your Immich version when relying
+> on SSO. Note that `Domain=.example.com` sends the Immich session cookie to
+> **all** subdomains — use a domain dedicated to Immich.
 
 ## Local development
 

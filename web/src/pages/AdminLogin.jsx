@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { api } from '../api.js';
+import { useTranslation } from 'react-i18next';
+import { api, errorMessage } from '../api.js';
+import LanguageSwitcher from '../components/LanguageSwitcher.jsx';
 
 export default function AdminLogin() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
@@ -17,7 +20,7 @@ export default function AdminLogin() {
       await api.login({ email, password });
       navigate('/admin');
     } catch (err) {
-      setError(err.message);
+      setError(errorMessage(t, err));
     } finally {
       setSubmitting(false);
     }
@@ -26,18 +29,21 @@ export default function AdminLogin() {
   return (
     <div className="page">
       <div className="card">
-        <h1>Administrator login</h1>
-        <p className="subtitle">Sign in with your Immich administrator credentials.</p>
+        <div className="card-head">
+          <h1>{t('adminLogin.title')}</h1>
+          <LanguageSwitcher />
+        </div>
+        <p className="subtitle">{t('adminLogin.subtitle')}</p>
 
         {error && <div className="alert alert-error">{error}</div>}
 
         <form onSubmit={onSubmit}>
           <label>
-            Email
+            {t('adminLogin.email')}
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </label>
           <label>
-            Password
+            {t('adminLogin.password')}
             <input
               type="password"
               value={password}
@@ -46,12 +52,12 @@ export default function AdminLogin() {
             />
           </label>
           <button type="submit" disabled={submitting}>
-            {submitting ? 'Signing in…' : 'Sign in'}
+            {submitting ? t('adminLogin.submitting') : t('adminLogin.submit')}
           </button>
         </form>
 
         <div className="footer-link">
-          <Link to="/">← Back to registration</Link>
+          <Link to="/">{t('adminLogin.back')}</Link>
         </div>
       </div>
     </div>

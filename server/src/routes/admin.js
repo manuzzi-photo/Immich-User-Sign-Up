@@ -28,7 +28,9 @@ const createCodeSchema = z.object({
 router.post('/invite-codes', (req, res) => {
   const parsed = createCodeSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ message: parsed.error.issues[0]?.message || 'Invalid input' });
+    return res
+      .status(400)
+      .json({ code: 'INVALID_INPUT', message: parsed.error.issues[0]?.message || 'Invalid input' });
   }
   const { label, maxUses, expiresAt } = parsed.data;
 
@@ -40,7 +42,8 @@ router.post('/invite-codes', (req, res) => {
     if (!clash) break;
     code = null;
   }
-  if (!code) return res.status(500).json({ message: 'Could not generate a unique code' });
+  if (!code)
+    return res.status(500).json({ code: 'CODE_GENERATION_FAILED', message: 'Could not generate a unique code' });
 
   const info = db
     .prepare(
@@ -58,13 +61,13 @@ router.post('/invite-codes/:id/revoke', (req, res) => {
   const info = db
     .prepare('UPDATE invite_codes SET active = 0 WHERE id = ?')
     .run(Number(req.params.id));
-  if (!info.changes) return res.status(404).json({ message: 'Code not found' });
+  if (!info.changes) return res.status(404).json({ code: 'CODE_NOT_FOUND', message: 'Code not found' });
   res.json({ ok: true });
 });
 
 router.delete('/invite-codes/:id', (req, res) => {
   const info = db.prepare('DELETE FROM invite_codes WHERE id = ?').run(Number(req.params.id));
-  if (!info.changes) return res.status(404).json({ message: 'Code not found' });
+  if (!info.changes) return res.status(404).json({ code: 'CODE_NOT_FOUND', message: 'Code not found' });
   res.json({ ok: true });
 });
 
@@ -99,12 +102,17 @@ router.get('/registrations', (req, res) => {
 router.post('/registrations/:id/approve', async (req, res, next) => {
   const id = Number(req.params.id);
   const row = db.prepare('SELECT * FROM registrations WHERE id = ?').get(id);
-  if (!row) return res.status(404).json({ message: 'Registration not found' });
+  if (!row)
+    return res.status(404).json({ code: 'REGISTRATION_NOT_FOUND', message: 'Registration not found' });
   if (row.status !== 'pending') {
-    return res.status(409).json({ message: `Registration is already ${row.status}` });
+    return res
+      .status(409)
+      .json({ code: 'ALREADY_REVIEWED', message: `Registration is already ${row.status}` });
   }
   if (!row.password_enc) {
-    return res.status(409).json({ message: 'Stored password is no longer available' });
+    return res
+      .status(409)
+      .json({ code: 'PASSWORD_UNAVAILABLE', message: 'Stored password is no longer available' });
   }
 
   try {
@@ -114,7 +122,7 @@ router.post('/registrations/:id/approve', async (req, res, next) => {
          reviewed_by = ?, reviewed_at = datetime('now'),
          note = 'Email already exists in Immich' WHERE id = ?`
       ).run(req.admin.email, id);
-      return res.status(409).json({ message: 'An account with this email already exists' });
+      return res.status(409).json({ code: 'EMAIL_EXISTS', message: 'An account with this email already exists' });
     }
 
     const password = decrypt(row.password_enc);
@@ -133,7 +141,9 @@ router.post('/registrations/:id/approve', async (req, res, next) => {
     res.json({ ok: true, status: 'approved' });
   } catch (err) {
     if (err instanceof ImmichError) {
-      return res.status(err.status === 502 ? 502 : 400).json({ message: err.message });
+      return res
+        .status(err.status === 502 ? 502 : 400)
+        .json({ code: err.status === 502 ? 'IMMICH_UNREACHABLE' : 'IMMICH_ERROR', message: err.message });
     }
     next(err);
   }
@@ -142,9 +152,12 @@ router.post('/registrations/:id/approve', async (req, res, next) => {
 router.post('/registrations/:id/reject', (req, res) => {
   const id = Number(req.params.id);
   const row = db.prepare('SELECT * FROM registrations WHERE id = ?').get(id);
-  if (!row) return res.status(404).json({ message: 'Registration not found' });
+  if (!row)
+    return res.status(404).json({ code: 'REGISTRATION_NOT_FOUND', message: 'Registration not found' });
   if (row.status !== 'pending') {
-    return res.status(409).json({ message: `Registration is already ${row.status}` });
+    return res
+      .status(409)
+      .json({ code: 'ALREADY_REVIEWED', message: `Registration is already ${row.status}` });
   }
   const note = typeof req.body?.note === 'string' ? req.body.note.slice(0, 500) : null;
   db.prepare(

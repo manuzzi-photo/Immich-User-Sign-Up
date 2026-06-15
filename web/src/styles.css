@@ -72,6 +72,33 @@ label {
   font-weight: 400;
 }
 
+.card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+.card-head h1 {
+  margin: 0;
+}
+
+.lang-switcher {
+  width: auto;
+  margin: 0;
+  padding: 6px 10px;
+  background: #0f1218;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.lang-switcher:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
 input {
   width: 100%;
   margin-top: 6px;

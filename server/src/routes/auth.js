@@ -18,7 +18,7 @@ const loginLimiter = rateLimit({
   max: 20,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { message: 'Too many login attempts, please try again later.' },
+  message: { code: 'RATE_LIMITED', message: 'Too many login attempts, please try again later.' },
 });
 
 const loginSchema = z.object({
@@ -30,13 +30,13 @@ const loginSchema = z.object({
 router.post('/login', loginLimiter, async (req, res, next) => {
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) {
-    return res.status(400).json({ message: 'Email and password are required' });
+    return res.status(400).json({ code: 'INVALID_INPUT', message: 'Email and password are required' });
   }
   const { email, password } = parsed.data;
   try {
     const result = await immich.login(email, password);
     if (!result?.isAdmin) {
-      return res.status(403).json({ message: 'This account is not an Immich administrator' });
+      return res.status(403).json({ code: 'NOT_ADMIN', message: 'This account is not an Immich administrator' });
     }
     issueSession(res, {
       immichToken: result.accessToken,
@@ -46,7 +46,7 @@ router.post('/login', loginLimiter, async (req, res, next) => {
     return res.json({ email: result.userEmail || email, name: result.name });
   } catch (err) {
     if (err instanceof ImmichError && err.status === 401) {
-      return res.status(401).json({ message: 'Invalid credentials' });
+      return res.status(401).json({ code: 'INVALID_CREDENTIALS', message: 'Invalid credentials' });
     }
     next(err);
   }
@@ -60,18 +60,18 @@ router.post('/logout', (req, res) => {
 // Lightweight session check used by the frontend on load.
 router.get('/me', async (req, res) => {
   const raw = req.cookies?.[SESSION_COOKIE];
-  if (!raw) return res.status(401).json({ message: 'Not authenticated' });
+  if (!raw) return res.status(401).json({ code: 'NOT_AUTHENTICATED', message: 'Not authenticated' });
   try {
     const payload = jwt.verify(raw, config.sessionSecret);
     const me = await immich.getMe(payload.immichToken);
     if (!me?.isAdmin) {
       clearSession(res);
-      return res.status(403).json({ message: 'Admin privileges required' });
+      return res.status(403).json({ code: 'NOT_ADMIN', message: 'Admin privileges required' });
     }
     return res.json({ email: me.email, name: me.name });
   } catch {
     clearSession(res);
-    return res.status(401).json({ message: 'Not authenticated' });
+    return res.status(401).json({ code: 'NOT_AUTHENTICATED', message: 'Not authenticated' });
   }
 });
 
