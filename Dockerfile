@@ -1,7 +1,7 @@
 # syntax=docker/dockerfile:1
 
 # ---------- Stage 1: build the React frontend ----------
-FROM node:20-slim AS web-builder
+FROM node:24-slim AS web-builder
 WORKDIR /web
 COPY web/package.json web/package-lock.json* ./
 RUN npm install
@@ -9,7 +9,7 @@ COPY web/ ./
 RUN npm run build
 
 # ---------- Stage 2: install backend dependencies ----------
-FROM node:20-slim AS server-deps
+FROM node:24-slim AS server-deps
 WORKDIR /server
 # Build tools required to compile the better-sqlite3 native addon.
 RUN apt-get update \
@@ -19,7 +19,7 @@ COPY server/package.json server/package-lock.json* ./
 RUN npm install --omit=dev
 
 # ---------- Stage 3: runtime image ----------
-FROM node:20-slim AS runtime
+FROM node:24-slim AS runtime
 LABEL org.opencontainers.image.source="https://github.com/manuzzi-photo/Immich-User-Sign-Up"
 LABEL org.opencontainers.image.description="Self sign-up webapp for an existing Immich instance (invite codes + admin approval)"
 LABEL org.opencontainers.image.licenses="GPL-3.0"

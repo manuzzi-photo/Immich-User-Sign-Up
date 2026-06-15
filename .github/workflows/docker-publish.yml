@@ -12,6 +12,9 @@ env:
   REGISTRY: ghcr.io
   # Resolves to ghcr.io/<owner>/<repo> (lowercased by metadata-action).
   IMAGE_NAME: ${{ github.repository }}
+  # Run the JavaScript-based actions on Node.js 24 (Node.js 20 is deprecated on
+  # GitHub Actions runners). Opt in now so the workflow is future-proof.
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
   build-and-push:
